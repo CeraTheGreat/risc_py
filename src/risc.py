@@ -1,5 +1,4 @@
 import sys
-import readchar
 
 
 # Registers:
@@ -66,8 +65,6 @@ import readchar
 # FLAGS
 # Debug flag will show the state of memory at each cycle
 DEBUG = False
-# Step flag will allow the user to step through the execution slowly
-STEP = False
 
 
 # A simple stack class to make code more readable, self explanatory
@@ -102,9 +99,12 @@ class Interpereter:
         # * infinite really means as much physical memory as we have
         self.stack = Stack()
 
-        # ACC and BAK are the two registers. They store integer values
+        # ACC, BAK, STP, SFP and BSP are the registers. They store integer values
         # ACC is where mathematic and comparison operations are preformed
-        # STP is where the current pointer to the head of the stack is stored
+        # BAK is a backup register for extra use
+        # STP is where the current pointer to the head of the stack, -1 if empty
+        # SFP is the head of the stack frame. This is where general use starts
+        # BSP is the begining of the stack frame. This is how stack arguments are passed
         self.acc = 0
         self.bak = 0
         self.stp = -1
@@ -138,25 +138,19 @@ class Interpereter:
         tags = {}
         instructions = []
 
-        # Remove comments, locate tags
-        for i,line in enumerate(string.splitlines()):
+        # Remove comments, tokenize lines
+        instructions = [line[:line.find("'")].strip().split() if line.find("'") != -1 else line.strip().split() for line in string.splitlines()]
 
-            # Remove trailing characters
-            line = line.rstrip()
-            line = line.lstrip()
-
-            # Remove comments
-            comment_pos = line.find("'")
-            if comment_pos != -1:
-                line = line[:comment_pos].rstrip()
-
-            tokens = line.split()
-            if tokens:
-                # Locate tags
-                if tokens[0][-1] == ':':
-                    tags[tokens[0][:-1]] = str(i)
-                    tokens = tokens[1:]
-            instructions.append(tokens)
+        # Locate tags
+        for i,tokens in enumerate(instructions):
+            #If we actually have tokens and the first token is a tag
+            if tokens and tokens[0][-1] == ':':
+                # Save name of tag with line it was found on
+                tags[tokens[0][:-1]] = str(i)
+                # Save remaining instructions without the tag
+                tokens = tokens[1:]
+            # Update instruction
+            instructions[i] = tokens
 
         # Replace tags with line numbers
         for i,tokens in enumerate(instructions):
@@ -168,8 +162,8 @@ class Interpereter:
     def params(self, parameters):
         self.stack.push(len(parameters))
         self.stp += 1
-        if parameters:
 
+        if parameters:
             # Initialize argv array
             for parameter in parameters:
                 self.stack.push(0)
@@ -177,10 +171,12 @@ class Interpereter:
 
             # Fill argv pointer values
             for i,parameter in enumerate(parameters):
+                # Set pointer to our variable
                 self.stack.elements[i+1] = self.stp + 1
                 for char in parameter:
                     self.stack.push(ord(char))
                     self.stp += 1
+                # Push null terminator
                 self.stack.push(0)
                 self.stp += 1
 
@@ -188,11 +184,8 @@ class Interpereter:
         self.bp = 0
         self.fp = self.stp
 
-
     # Preform interperetation
     def run(self):
-        if STEP: print("Stepping...")
-
         #The main interpereter loop
         while self.do_continue and self.instruction_ptr < len(self.instruction_list):
 
@@ -200,7 +193,8 @@ class Interpereter:
             #DEBUG -- Debug info on each cycle.
             if DEBUG:
                 #STEP -- Wait for user to step each cycle
-                if STEP and readchar.readchar() == 'q': self.do_continue = False
+                #if STEP and readchar.readchar() == 'q': self.do_continue = False
+                #STEP uses the readchar module, do or don't it's not required
                 print('')
                 print("------------")
                 print("stack: {}".format(self.stack.elements))
@@ -297,15 +291,19 @@ class Interpereter:
             # If it wasn't a register or the stack, assume it is an integer
             return int(src)
 
+    # Generally set the destination to the provided value
+    def _set_dest(self, value, dest):
+        if dest == 'ACC':
+            self.acc = value
+        elif dest == 'BAK':
+            self.bak = value
+        elif dest[0] == '[' and dest[-1] == ']':
+            self.stack.elements[self._get_src(dest[1:-1])] = value
+
     # The only instruction with the DST argument
     # Overwrites the specified location with the provided value
     def _move(self, src, dest):
-        if dest == 'ACC':
-            self.acc = self._get_src(src)
-        elif dest == 'BAK':
-            self.bak = self._get_src(src)
-        elif dest[0] == '[' and dest[-1] == ']':
-            self.stack.elements[self._get_src(dest[1:-1])] = self._get_src(src)
+        self._set_dest(self._get_src(src), dest)
 
     # Pushes the specified value to the stack, does not overwrite
     def _push(self, src):

@@ -20,7 +20,7 @@ INIT: 	CLL MAIN ACC	'Call main with argument count and argument pointers
 		
 '------------------------------------------------------------------------------'
 'void main(int argc, int* argv)
-MAIN: 	MOV FBP ACC		'Get base pointer
+MAIN: 	MOV BSP ACC		'Get base pointer
 		ADD 3			'Offset by 3 to get variable
 		PSH ACC			'Push offset onto stack
 		MOV [ACC] ACC	'Move first varialble (argc) to ACC
@@ -41,7 +41,7 @@ EMAIN:	RET				'Return from main
 'void print(char* string)
 PRINT:	PSH ACC			'SAVE ACC to stack for register integrity
 		PSH BAK			'Save BAK to stack for register integrity
-		MOV FBP ACC		'move base pointer to accumulator
+		MOV BSP ACC		'move base pointer to accumulator
 		ADD 3			'add 3 to offset into variable space
 		MOV [ACC] BAK	'Move memory pointed at by variable into BAK
 LOOP:	MOV [BAK] ACC	'Move the value at the pointer into ACC to compare
