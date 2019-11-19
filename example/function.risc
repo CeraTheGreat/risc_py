@@ -1,0 +1,60 @@
+'initialization
+		PSH [0]			'Push the number of arguments onto the stack
+		MOV [0] BAK		'Backup the number of arguments
+		PSH 1			'Put first pointer on stack
+ILOP:	MOV [STP] ACC	'Get current pointer from stack
+		POP				'Clear stack
+		PSH [ACC]		'Push the value being pointed to by pointer
+		ADD 1			'Increment pointer
+		PSH ACC			'Push new pointer
+		MOV BAK ACC		'Count down number of arguments
+		SUB 1			'
+		MOV ACC BAK		'Backup count
+		JNZ ILOP		'If more arguments, jump back into loop
+		POP				'Else clear stack of pointer
+		MOV [0] ACC		'Move argument count into ACC
+		ADD 1			'Increment
+		
+INIT: 	CLL MAIN ACC	'Call main with argument count and argument pointers
+		HLT				'Halt if main returns	
+		
+'------------------------------------------------------------------------------'
+'void main(int argc, int* argv)
+MAIN: 	MOV FBP ACC		'Get base pointer
+		ADD 3			'Offset by 3 to get variable
+		PSH ACC			'Push offset onto stack
+		MOV [ACC] ACC	'Move first varialble (argc) to ACC
+MLOP:	JEZ EMAIN		'If no more variables, jump to end
+		SUB 1
+		MOV ACC BAK		'Save new count
+		MOV [STP] ACC	'Move offset into ACC
+		ADD 1			'Increment offset
+		MOV ACC [STP]	'Save offset
+		PSH [ACC]		'Push string pointer to stack
+		CLL PRINT 1		'Call the print function
+		POP				'Remove extraneous pointer
+		MOV BAK ACC		'Move count into accumulator to compare
+		JMP MLOP
+EMAIN:	RET				'Return from main
+		
+'------------------------------------------------------------------------------'
+'void print(char* string)
+PRINT:	PSH ACC			'SAVE ACC to stack for register integrity
+		PSH BAK			'Save BAK to stack for register integrity
+		MOV FBP ACC		'move base pointer to accumulator
+		ADD 3			'add 3 to offset into variable space
+		MOV [ACC] BAK	'Move memory pointed at by variable into BAK
+LOOP:	MOV [BAK] ACC	'Move the value at the pointer into ACC to compare
+		JEZ END			'If current char is NULL, string is done
+		CHP ACC			'Else print current char
+		MOV BAK ACC		'Move BAK to ACC to increment the pointer
+		ADD 1
+		MOV ACC BAK		'Save incremented pointer
+		JMP LOOP		'Go to next char
+END:	CHP 12			'Carriage Return
+		CHP 13			'Line feed
+		MOV [STP] BAK	'Return in the same state we started in
+		POP
+		MOV [STP] ACC	'Return in the same state we started in
+		RET
+
