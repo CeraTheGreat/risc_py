@@ -11,7 +11,10 @@ import readchar
 #
 #   STP                 - Stack pointer, this is the current head of the stack
 #
-#   FPR                 - Function pointer, this is the start of the function frame
+#   SFP                 - Stack frame pointer, this is the end of the stack frame
+#
+#   BSP                 - Stack frame base pointer, this is the begining of the
+#                         stack frame.
 #
 # Placeholders:
 #   <SRC>               - This is the value being acted upon. It may represent a
@@ -202,8 +205,8 @@ class Interpereter:
                 print("------------")
                 print("stack: {}".format(self.stack.elements))
                 print("ip   : {}".format(self.instruction_ptr))
-                print("bp   : {}".format(self.bp))
-                print("fp   : {}".format(self.fp))
+                print("sbp   : {}".format(self.bp))
+                print("sfp   : {}".format(self.fp))
                 print("acc  : {}".format(self.acc))
                 print("bak  : {}".format(self.bak))
                 print("stp  : {}".format(self.stp))
@@ -284,9 +287,9 @@ class Interpereter:
             return self.bak
         elif src == 'STP':
             return self.stp
-        elif src == 'FSP':
+        elif src == 'SFP':
             return self.fp
-        elif src == 'FBP':
+        elif src == 'BSP':
             return self.bp
         elif src[0] =='[' and src[-1] ==']':
             return self.stack.elements[self._get_src(src[1:-1])]
