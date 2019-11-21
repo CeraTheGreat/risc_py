@@ -1,20 +1,26 @@
+'Labels and stack, but still no *real* function calls
 PSH 6
 PSH 5
-MOV STK ACC
+
+MOV [STP] ACC
 POP
-MOV STK BAK
+MOV [STP] BAK
+
+'Multiplication loop
+LOOP:
 SUB 1
-JEZ 18
+JEZ END
 PSH BAK
 MOV ACC BAK
-MOV STK ACC
+MOV [STP] ACC
 POP
-ADD STK
+ADD [STP]
 PSH ACC
 MOV BAK ACC
-MOV STK BAK
+MOV [STP] BAK
 POP
-JMP 6
+JMP LOOP
+END:
 INP BAK
 CHP 12
 CHP 13
