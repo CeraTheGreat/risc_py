@@ -63,13 +63,6 @@ import argparse
 #   HLT                 - Halt interperetation
 
 
-# FLAGS
-# Debug flag will show the state of memory at each cycle
-DEBUG = False
-# Steps flag will enable stepping in debug mode
-STEPS = False
-
-
 # A simple stack class to make code more readable, self explanatory
 class Stack:
     def __init__(self, elements=None): self.elements = elements if elements else []
@@ -79,7 +72,10 @@ class Stack:
 
 
 class Interpereter:
-    def __init__(self, instructions):
+    def __init__(self, instructions, DEBUG=False, STEP=False):
+        self.DEBUG = DEBUG
+        self.STEP = STEP
+
         # Controlls the continuation of the main interpereter loop, HLT will
         # set this false and stop the loop
         self.do_continue = True
@@ -194,7 +190,7 @@ class Interpereter:
 
 
             #DEBUG -- Debug info on each cycle.
-            if DEBUG:
+            if self.DEBUG:
                 #STEP -- Wait for user to step each cycle
                 #if STEP and readchar.readchar() == 'q': self.do_continue = False
                 #STEP uses the readchar module, do or don't it's not required
@@ -209,7 +205,7 @@ class Interpereter:
                 print("stp  : {}".format(self.stp))
                 print("ins  : {}".format(self.instruction_list[self.instruction_ptr]))
                 print("------------")
-                if STEPS: input("<enter to continue>")
+                if self.STEP: input("<enter to continue>")
 
             #DEBUG
 
@@ -367,9 +363,6 @@ class Interpereter:
 
 # Setup for interperetation
 def main():
-    global DEBUG
-    global STEPS
-
     parser = argparse.ArgumentParser() 
     parser.add_argument("-d", 
                         "--debug",
@@ -394,14 +387,11 @@ def main():
 
     args = parser.parse_args()
 
-    DEBUG = args.debug
-    STEPS = args.step
-
-    if DEBUG: print(args)
+    if args.debug: print(args)
 
     with open(args.File,'r') as program_file:
         program = program_file.read()
-    interpereter = Interpereter(program)
+    interpereter = Interpereter(program, DEBUG=args.debug, STEP=args.step)
     interpereter.params(args.Params)
     interpereter.run()
 
