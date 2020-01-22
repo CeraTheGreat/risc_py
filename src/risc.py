@@ -1,4 +1,5 @@
 import sys
+import argparse
 
 
 # Registers:
@@ -65,6 +66,8 @@ import sys
 # FLAGS
 # Debug flag will show the state of memory at each cycle
 DEBUG = False
+# Steps flag will enable stepping in debug mode
+STEPS = False
 
 
 # A simple stack class to make code more readable, self explanatory
@@ -206,6 +209,8 @@ class Interpereter:
                 print("stp  : {}".format(self.stp))
                 print("ins  : {}".format(self.instruction_list[self.instruction_ptr]))
                 print("------------")
+                if STEPS: input("<enter to continue>")
+
             #DEBUG
 
             # The instruction which is currently being pointed to
@@ -362,14 +367,42 @@ class Interpereter:
 
 # Setup for interperetation
 def main():
-    if len(sys.argv) < 2: 
-        print("usage: python risc.py <instruction_file>")
-        sys.exit()
-    program_filename = sys.argv[1]
-    with open(program_filename,'r') as program_file:
+    global DEBUG
+    global STEPS
+
+    parser = argparse.ArgumentParser() 
+    parser.add_argument("-d", 
+                        "--debug",
+                        action="store_true", 
+                        default=False, 
+                        help="Enable debug mode")
+
+    parser.add_argument("-s", 
+                        "--step", 
+                        action="store_true",
+                        default=False,
+                        help="Enable stepping in debug mode")
+
+    parser.add_argument("File", 
+                        metavar="file", 
+                        help="The filename of the program to interperet")
+
+    parser.add_argument("Params",
+                        metavar="params",
+                        nargs='*',
+                        help="Parameters for the program being interpereted")
+
+    args = parser.parse_args()
+
+    DEBUG = args.debug
+    STEPS = args.step
+
+    if DEBUG: print(args)
+
+    with open(args.File,'r') as program_file:
         program = program_file.read()
     interpereter = Interpereter(program)
-    interpereter.params(sys.argv[2:])
+    interpereter.params(args.Params)
     interpereter.run()
 
 
