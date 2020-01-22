@@ -6,8 +6,8 @@ CONT:	PSH [1]
 		CLL PRINT 1
 		HLT
 
-'void print(char* string
-PRINT:	MOV FBP ACC		'Move base pointer into ACC
+'void print(char* string)
+PRINT:	MOV BSP ACC		'Move base pointer into ACC
 		ADD 3			'Offset by 3
 		MOV [ACC] BAK	'Deference the pointer to get the value passed
 LOOP:	MOV [BAK] ACC	'Read the current value in the array into memory
