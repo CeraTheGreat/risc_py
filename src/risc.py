@@ -63,6 +63,43 @@ import argparse
 #   HLT                 - Halt interperetation
 
 
+# We want to tell the user when a tag does not exist
+class TagError(Exception):
+    def __init__(self, line, message):
+        self.line = line
+        self.message = message
+
+    def __repr__(self):
+        return '"{}", line {}'.format(self.message, self.line + 1)
+
+
+class InstructionError(Exception):
+    def __init__(self, line, message):
+        self.line = line
+        self.message = message
+
+    def __repr__(self):
+        return '"{}", line {}'.format(self.message, self.line + 1)
+
+
+class SourceError(Exception):
+    def __init__(self, line, message):
+        self.line = line
+        self.message = message
+
+    def __repr__(self):
+        return '"{}", line {}'.format(self.message, self.line + 1)
+
+
+class DestError(Exception):
+    def __init__(self, line, message):
+        self.line = line
+        self.message = message
+
+    def __repr__(self):
+        return '"{}", line {}'.format(self.message, self.line + 1)
+
+
 # A simple stack class to make code more readable, self explanatory
 class Stack:
     def __init__(self, elements=None): self.elements = elements if elements else []
@@ -133,12 +170,12 @@ class Interpereter:
         }
 
     # Take a textfile and turn it into an indexable list of instructions
-    def parse_instructions(self, string):
+    def parse_instructions(self, instruction_file):
         tags = {}
         instructions = []
 
         # Remove comments, tokenize lines
-        instructions = [line[:line.find("'")].strip().split() if line.find("'") != -1 else line.strip().split() for line in string.splitlines()]
+        instructions = [line[:line.find("'")].strip().split() if line.find("'") != -1 else line.strip().split() for line in instruction_file.splitlines()]
 
         # Locate tags
         for i,tokens in enumerate(instructions):
@@ -212,6 +249,7 @@ class Interpereter:
             # The instruction which is currently being pointed to
             instruction = self.instruction_list[self.instruction_ptr]
 
+
             # If empty line, don't run a command
             if instruction == []:
                 self.instruction_ptr += 1
@@ -222,6 +260,12 @@ class Interpereter:
             #
             # The opcode is always the first element of the instruction
             opcode = instruction[0]
+
+
+            # If the opcode is not valid, raise an error so the user 
+            # can correct it
+            if opcode not in self.instructions:
+                raise InstructionError(self.instruction_ptr, f'{opcode} is not a valid instruction')
 
             # Index into the instructions dictionary and call it with the
             # remaining pieces of the instruction tokens
@@ -288,9 +332,12 @@ class Interpereter:
             return self.bp
         elif src[0] =='[' and src[-1] ==']':
             return self.stack.elements[self._get_src(src[1:-1])]
-        else:
-            # If it wasn't a register or the stack, assume it is an integer
+        elif src[0].isdigit():
+            # if it wasn't a register or the stack, check if it's an integer
             return int(src)
+        else:
+            # if it wasn't any of those things, it was an error
+            raise SourceError(self.instruction_ptr, f'{src} is not a valid source value')
 
     # Generally set the destination to the provided value
     def _set_dest(self, value, dest):
@@ -300,6 +347,8 @@ class Interpereter:
             self.bak = value
         elif dest[0] == '[' and dest[-1] == ']':
             self.stack.elements[self._get_src(dest[1:-1])] = value
+        else:
+            raise DestError(self.instruction_ptr, f'{dest} is not a valid destination value')
 
     # The only instruction with the DST argument
     # Overwrites the specified location with the provided value
@@ -334,25 +383,40 @@ class Interpereter:
 
     # Unconditionally jump to specified location
     def _jmp(self, src):
+        if not src.isdigit():
+            raise TagError(self.instruction_ptr, f'{src} is not a valid jump location')
+
         self.instruction_ptr = self._get_src(src) - 1
 
     # If acc equals zero, jump to specified location
     def _jez(self, src):
+        if not src.isdigit():
+            raise TagError(self.instruction_ptr, f'{src} is not a valid jump location')
+
         if self.acc == 0:
             self.instruction_ptr = self._get_src(src) - 1
 
     # If acc does not equal zero, jump to specified location
     def _jnz(self, src):
+        if not src.isdigit():
+            raise TagError(self.instruction_ptr, f'{src} is not a valid jump location')
+
         if self.acc != 0:
             self.instruction_ptr = self._get_src(src) - 1
 
     # If acc is greater than zero, jump to specified location
     def _jgz(self, src):
+        if not src.isdigit():
+            raise TagError(self.instruction_ptr, f'{src} is not a valid jump location')
+
         if self.acc > 0:
             self.instruction_ptr = self._get_src(src) - 1
 
     # If acc is less than zero, jump to specified location
     def _jlz(self, src):
+        if not src.isdigit():
+            raise TagError(self.instruction_ptr, f'{src} is not a valid jump location')
+
         if self.acc < 0:
             self.instruction_ptr = self._get_src(src) - 1
 
@@ -393,7 +457,10 @@ def main():
         program = program_file.read()
     interpereter = Interpereter(program, DEBUG=args.debug, STEP=args.step)
     interpereter.params(args.Params)
-    interpereter.run()
+    try:
+        interpereter.run()
+    except (TagError, InstructionError, SourceError, DestError)  as err:
+        print("error: {}".format(repr(err)))
 
 
 if __name__ == '__main__':

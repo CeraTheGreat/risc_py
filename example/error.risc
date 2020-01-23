@@ -1,0 +1,66 @@
+MAIN:	MOP [0] ACC
+		JNZ CONP
+NONE:	CLL USAGE
+		HLT
+CONT:	PSH [1]
+		CLL PRINT 1
+		HLT
+
+'void print(char* string)
+PRINT:	MOV BST ACC		'Move base pointer into ACC
+		ADD 3			'Offset by 3
+		MOV [ACC] BAK	'Deference the pointer to get the value passed
+LOOP:	MOV [BAK] ACC	'Read the current value in the array into memory
+		JEZ END			'If we reach the null value, end
+		CHP ACC			'Print the current character
+		MOV BAK ACT		'Increment the pointer
+		ADD 1
+		MOV ACC BAK		'Backup pointer value
+		JMP LOOP		'Restart Loop
+END:	CHP 12			'Print carriage return/newline
+		CHP 13
+		RET				'Return
+
+'Usage statement
+USAGE:	CHP 85 			'U
+		CHP 115 		's
+		CHP 97 			'a
+		CHP 103 		'g
+		CHP 101 		'e
+		CHP 58 			':
+		CHP 32 			'
+		CHP 112 		'p
+		CHP 121 		'y
+		CHP 116 		't
+		CHP 104 		'h
+		CHP 111 		'o
+		CHP 110 		'n
+		CHP 32 			'
+		CHP 114 		'r
+		CHP 105 		'i
+		CHP 115 		's
+		CHP 99 			'c
+		CHP 46 			'.
+		CHP 112 		'p
+		CHP 121 		'y
+		CHP 32 			'
+		CHP 101 		'e
+		CHP 99 			'c
+		CHP 104 		'h
+		CHP 111 		'o
+		CHP 46 			'.
+		CHP 114 		'r
+		CHP 105 		'i
+		CHP 115 		's
+		CHP 99 			'c
+		CHP 32 			'
+		CHP 60 			'<
+		CHP 118 		'v
+		CHP 97 			'a
+		CHP 108 		'l
+		CHP 117 		'u
+		CHP 101 		'e
+		CHP 62 			'>
+		CHP 12			'\r
+		CHP 13			'\n
+		RET
