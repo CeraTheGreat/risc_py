@@ -165,3 +165,8 @@ You can jump to any line in your program, the jump can be specified by a tag or 
 
 ## Math
 All mathematical operations are preformed on **ACC**
+
+## Debugging
+To debug a program, run risc.py with the `-d` or `--debug` flags, this will print out information about the state of the interperetation at each instruction.
+
+To slowly step through the program, run risc.py with `-d` or `--debug` **AND** `-s` or `--step`.
