@@ -233,14 +233,43 @@ class Interpereter:
                 #STEP uses the readchar module, do or don't it's not required
                 print('')
                 print("------------")
-                print("stack: {}".format(self.stack.elements))
-                print("ip   : {}".format(self.instruction_ptr))
-                print("sbp   : {}".format(self.bp))
-                print("sfp   : {}".format(self.fp))
-                print("acc  : {}".format(self.acc))
-                print("bak  : {}".format(self.bak))
-                print("stp  : {}".format(self.stp))
-                print("ins  : {}".format(self.instruction_list[self.instruction_ptr]))
+
+                # Print the stack in such a way that we can see where the
+                # pointers are pointing
+                print("stack:")
+                matrix = [[] for _ in range(6)]
+                for i,element in enumerate(self.stack.elements):
+                    val_len = len(str(element)) + 2
+                    new_val = [' '] * val_len
+                    for j in range(6):
+                        matrix[j] += new_val
+                    if self.acc == i:
+                        matrix[0][-val_len + 1] = '^'
+                        matrix[3][-val_len + 1] = 'A'
+                    if self.bak == i:
+                        matrix[0][-val_len + 1] = '^'
+                        matrix[4][-val_len + 1] = 'K'
+                    if self.bp == i:
+                        matrix[0][-val_len + 1] = '^'
+                        matrix[1][-val_len + 1] = 'B'
+                    if self.fp == i:
+                        matrix[0][-val_len + 1] = '^'
+                        matrix[2][-val_len + 1] = 'F'
+                    if self.stp == i:
+                        matrix[0][-val_len + 1] = '^'
+                        matrix[5][-val_len + 1] = 'T'
+                print(self.stack.elements)
+                for line in matrix:
+                    print("".join(line))
+                print('')
+
+                print("ip     : {}".format(self.instruction_ptr))
+                print("sbp  B : {}".format(self.bp))
+                print("sfp  F : {}".format(self.fp))
+                print("acc  A : {}".format(self.acc))
+                print("bak  K : {}".format(self.bak))
+                print("stp  T : {}".format(self.stp))
+                print("ins    : {}".format(self.instruction_list[self.instruction_ptr]))
                 print("------------")
                 if self.STEP: input("<enter to continue>")
 
