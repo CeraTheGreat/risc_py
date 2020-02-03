@@ -87,6 +87,7 @@ The **CLL** and **RET** instructions automatically construct and deconstruct the
 
 You may change the values of the stack arguments. **DO NOT** change the values of the three pointers at n, n+1 and n+2; this will break your program.
 
+This will copy the specified number of arguments from the stack into the next stack frame. These will be the *n* previous elements on the stack in the order that they were pushed onto the stack. 
 
 ## Memory Access
 Memory access is done by placing brackets around a *\<DST\>* or *\<SRC\>* value:
