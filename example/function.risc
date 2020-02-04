@@ -15,7 +15,7 @@ ILOP:	MOV [STP] ACC	'Get current pointer from stack
 		MOV [0] ACC		'Move argument count into ACC
 		ADD 1			'Increment
 		
-INIT: 	CLL MAIN ACC	'Call main with argument count and argument pointers
+INIT: 	CLL MAIN 		'Call main with argument count and argument pointers
 		HLT				'Halt if main returns	
 		
 '------------------------------------------------------------------------------'
@@ -31,7 +31,7 @@ MLOP:	JEZ EMAIN		'If no more variables, jump to end
 		ADD 1			'Increment offset
 		MOV ACC [STP]	'Save offset
 		PSH [ACC]		'Push string pointer to stack
-		CLL PRINT 1		'Call the print function
+		CLL PRINT 		'Call the print function
 		POP				'Remove extraneous pointer
 		MOV BAK ACC		'Move count into accumulator to compare
 		JMP MLOP

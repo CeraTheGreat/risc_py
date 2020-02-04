@@ -3,7 +3,7 @@ MAIN:	MOV [0] ACC
 NONE:	CLL USAGE
 		HLT
 CONT:	PSH [1]
-		CLL PRINT 1
+		CLL PRINT 
 		HLT
 
 'void print(char* string)
