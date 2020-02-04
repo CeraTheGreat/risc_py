@@ -320,17 +320,12 @@ class Interpereter:
     # Increment stack ptr +3
     # Set the function pointer to STP - 1
     # Set the instruction pointer to <SRC>
-    def _call(self, src, argc=None):
+    def _call(self, src):
         old_bp = self.bp
         self.bp = self.stp + 1
         self.stack.push(self.instruction_ptr)
         self.stack.push(old_bp)
         self.stack.push(self.fp)
-        if argc:
-            argc = self._get_src(argc)
-            for i in range(self.stp - (argc - 1), self.stp + 1):
-                self.stack.push(self.stack.elements[i])
-                self.stp += 1
         self.stp += 3
         self.fp = self.stp 
         self.instruction_ptr = self._get_src(src) - 1

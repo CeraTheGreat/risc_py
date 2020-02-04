@@ -43,7 +43,6 @@ This old functionality is difficult by design, it is a puzzle game after all. Th
 - **INP** *\<SRC\>* – Print the value from *\<SRC\>* formatted as an int
 - **POP** – Remove and discard the head of the stack
 - **CLL** *\<SRC\>* – Call a function at location *\<SRC\>* without stack arguments
-- **CLL** *\<SRC\>* *\<SRC\>* – Call a function at location *\<SRC\>* with *\<SRC\>* number of stack arguments, in that order
 - **RET** – Return from a function call
 - **HLT** – Stop execution
 
@@ -64,18 +63,18 @@ Stack frames are constructed in the following way:
   .  Prev General Use Stack  .
   :                          :
   |                          |
+  ----------------------------
+  |      Stack Arguments     |  n - k
+  :                          :
+  .                          .  
+  :                          :
+  |                          |  n - 1
 --------------------------------
   | Prev Instruction Pointer |  n       <-- Current Base Stack Pointer
   ----------------------------
   |  Prev Base Stack Pointer |  n + 1   
   ----------------------------
-  | Prev Stack Frame Pointer |  n + 2
-  ----------------------------
-  |      Stack Arguments     |  n + 3
-  :                          :
-  .                          .  
-  :                          :
-  |                          |  n + k   <-- Current Stack Frame Pointer
+  | Prev Stack Frame Pointer |  n + 2   <-- Current Stack Frame Pointer
 --------------------------------
   |    General Use Stack     |  
   :                          :
@@ -87,8 +86,7 @@ The **CLL** and **RET** instructions automatically construct and deconstruct the
 
 You may change the values of the stack arguments. **DO NOT** change the values of the three pointers at n, n+1 and n+2; this will break your program.
 
-This will copy the specified number of arguments from the stack into the next stack frame. These will be the *n* previous elements on the stack in the order that they were pushed onto the stack. 
-
+To access stack arguments, you must offset onto the stack behind the current Base Stack Pointer or use a register to pass arguments. You should know how many arguments your function takes and therefore know exactly how far to offset. If you need to pass an arbitrary number of arguments, consider adding a count argument at n-1 and use that to further offset your program.
 ## Memory Access
 Memory access is done by placing brackets around a *\<DST\>* or *\<SRC\>* value:
 
