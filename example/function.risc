@@ -21,9 +21,9 @@ INIT: 	CLL MAIN ACC	'Call main with argument count and argument pointers
 '------------------------------------------------------------------------------'
 'void main(int argc, int* argv)
 MAIN: 	MOV BSP ACC		'Get base pointer
-		ADD 3			'Offset by 3 to get variable
+		SUB 3			'Offset by 3 to get parameter
 		PSH ACC			'Push offset onto stack
-		MOV [ACC] ACC	'Move first varialble (argc) to ACC
+		MOV [ACC] ACC	'Move first variable (argc) to ACC
 MLOP:	JEZ EMAIN		'If no more variables, jump to end
 		SUB 1
 		MOV ACC BAK		'Save new count
@@ -42,7 +42,7 @@ EMAIN:	RET				'Return from main
 PRINT:	PSH ACC			'SAVE ACC to stack for register integrity
 		PSH BAK			'Save BAK to stack for register integrity
 		MOV BSP ACC		'move base pointer to accumulator
-		ADD 3			'add 3 to offset into variable space
+		SUB 1			'Sub 1 to offset into parameter space
 		MOV [ACC] BAK	'Move memory pointed at by variable into BAK
 LOOP:	MOV [BAK] ACC	'Move the value at the pointer into ACC to compare
 		JEZ END			'If current char is NULL, string is done

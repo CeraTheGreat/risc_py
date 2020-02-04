@@ -8,7 +8,7 @@ CONT:	PSH [1]
 
 'void print(char* string)
 PRINT:	MOV BST ACC		'Move base pointer into ACC
-		ADD 3			'Offset by 3
+		SUB 1			'BST-1 to access argument
 		MOV [ACC] BAK	'Deference the pointer to get the value passed
 LOOP:	MOV [BAK] ACC	'Read the current value in the array into memory
 		JEZ END			'If we reach the null value, end
