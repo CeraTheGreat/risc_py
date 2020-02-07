@@ -100,6 +100,15 @@ class DestError(Exception):
         return '"{}", line {}'.format(self.message, self.line + 1)
 
 
+class IdexError(Exception):
+    def __init__(self, line, message):
+        self.line = line
+        self.message = message
+
+    def __repr__(self):
+        return '"{}", line {}'.format(self.message, self.line + 1)
+
+
 # A simple stack class to make code more readable, self explanatory
 class Stack:
     def __init__(self, elements=None): self.elements = elements if elements else []
@@ -355,7 +364,11 @@ class Interpereter:
         elif src == 'BSP':
             return self.bp
         elif src[0] =='[' and src[-1] ==']':
-            return self.stack.elements[self._get_src(src[1:-1])]
+            pos = self._get_src(src[1:-1])
+            if pos >= len(self.stack.elements):
+                raise IdexError(self.instruction_ptr, f'{pos} is out of stack bounds')
+            else:
+                return self.stack.elements[pos]
         elif src[0].isdigit():
             # if it wasn't a register or the stack, check if it's an integer
             return int(src)
@@ -370,7 +383,11 @@ class Interpereter:
         elif dest == 'BAK':
             self.bak = value
         elif dest[0] == '[' and dest[-1] == ']':
-            self.stack.elements[self._get_src(dest[1:-1])] = value
+            pos = self._get_src(dest[1:-1])
+            if pos >= len(self.stack.elements):
+                raise IdexError(self.instruction_ptr, f'{pos} is out of stack bounds')
+            else:
+                self.stack.elements[pos] = value
         else:
             raise DestError(self.instruction_ptr, f'{dest} is not a valid destination value')
 
@@ -483,7 +500,7 @@ def main():
     interpereter.params(args.Params)
     try:
         interpereter.run()
-    except (TagError, InstructionError, SourceError, DestError)  as err:
+    except (TagError, InstructionError, SourceError, DestError, IdexError)  as err:
         print("error: {}".format(repr(err)))
 
 
