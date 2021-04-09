@@ -1,5 +1,4 @@
 'initialization
-		PSH [0]			'Push the number of arguments onto the stack
 		MOV [0] BAK		'Backup the number of arguments
 		PSH 1			'Put first pointer on stack
 ILOP:	MOV [STP] ACC	'Get current pointer from stack
@@ -15,26 +14,32 @@ ILOP:	MOV [STP] ACC	'Get current pointer from stack
 		MOV [0] ACC		'Move argument count into ACC
 		ADD 1			'Increment
 		
-INIT: 	CLL MAIN 		'Call main with argument count and argument pointers
+INIT:	PSH [0]			'Push the number of arguments onto the stack last
+		CLL MAIN 		'Call main with argument count and argument pointers
 		HLT				'Halt if main returns	
 		
 '------------------------------------------------------------------------------'
 'void main(int argc, int* argv)
-MAIN: 	MOV BSP ACC		'Get base pointer
-		SUB 3			'Offset by 3 to get parameter
-		PSH ACC			'Push offset onto stack
-		MOV [ACC] ACC	'Move first variable (argc) to ACC
-MLOP:	JEZ EMAIN		'If no more variables, jump to end
-		SUB 1
-		MOV ACC BAK		'Save new count
-		MOV [STP] ACC	'Move offset into ACC
-		ADD 1			'Increment offset
-		MOV ACC [STP]	'Save offset
-		PSH [ACC]		'Push string pointer to stack
-		CLL PRINT 		'Call the print function
-		POP				'Remove extraneous pointer
-		MOV BAK ACC		'Move count into accumulator to compare
-		JMP MLOP
+MAIN:	MOV BSP ACC		'Get base pointer
+		SUB 1			'Offset by 1 to get to argc
+		PSH [ACC]		'Push argc onto stack
+		MOV [ACC] BAK	'Copy argc to bakup
+		SUB BAK			'Get *argv
+		PSH ACC			'Push *argv onto the stack
+
+MLOP:	MOV BAK ACC		'Move argc from bakup into accumulator
+		JEZ	EMAIN		'If out of arguments, jump to end
+		SUB 1			'Decrement
+		MOV ACC BAK		'Save back decremented count
+		PSH [[STP]]		'Else push argv[0] onto stack
+		CLL PRINT		'Print this string
+		POP				'Remove pointer from stack
+		MOV [STP] ACC	'Move *argv into acc
+		ADD 1			'Increment to get *(argv + i) 
+		POP				'Remove *argv from stack
+		PSH ACC			'Replace with incremented value
+		JMP MLOP		'Restart loop
+
 EMAIN:	RET				'Return from main
 		
 '------------------------------------------------------------------------------'
