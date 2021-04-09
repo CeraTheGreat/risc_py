@@ -88,7 +88,13 @@ class Interpereter:
         self.do_continue = False
 
 
-with open(sys.argv[1],'r') as program_file:
-    program = program_file.read()
-interpereter = Interpereter(program)
-interpereter.run()
+def main():
+    with open(sys.argv[1],'r') as program_file:
+        program = program_file.read()
+    interpereter = Interpereter(program)
+    interpereter.run()
+
+
+if __name__ == "__main__":
+    main()
+

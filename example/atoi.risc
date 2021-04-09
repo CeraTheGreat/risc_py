@@ -1,0 +1,27 @@
+		
+'void main(int argc, int* argv)
+MAIN:	MOV [0] ACC		'Test if we have any arguments
+		JEZ EXIT		'If we don't then we exit
+		MOV ACC	1 		'If we do, start the accumulater at the first pointer
+MAIN:	SUB [0]			'Subtract count
+		JEZ EXIT		'If that subtraction was equal to zero, exit
+		ADD [0]			'Else put ACC back like it was
+		PSH ACC			'Save ACC value
+		PSH [ACC]		'Push the current string pointer to the stack
+		CLL ATOI		'Call ASCII to Integer 
+		INP ACC			'Print the integer value returned in ACC
+		POP				'Remove string pointer from stack
+		MOV [STP] ACC	'Copy previous ACC value back to ACC
+		POP				'Remove previous ACC value from stack
+		ADD 1			'Increment ACC
+		JMP MAIN
+EXIT:	HLT 'Return from main
+		
+'------------------------------------------------------------------------------'
+'int atoi(char* string)
+ATOI:	MOV BSP ACC		'Offset behind BSP to get argument values
+		SUB 1
+		MOV [ACC] ACC 
+		PSH ACC			'Save pointer to stack
+		
+			
