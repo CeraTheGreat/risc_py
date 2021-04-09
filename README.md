@@ -83,9 +83,9 @@ Stack frames are constructed in the following way:
 
 The **CLL** and **RET** instructions automatically construct and deconstruct the stack frame.
 
-You may change the values of the stack arguments. **DO NOT** change the values of the three pointers at n, n+1 and n+2; this will break your program.
+You may change the values of the stack arguments. **DO NOT** change the values of the three pointers at _n_, _n+1_ and _n+2_. This will break your program.
 
-To access stack arguments, you must offset onto the stack behind the current Base Stack Pointer or use a register to pass arguments. You should know how many arguments your function takes and therefore know exactly how far to offset. If you need to pass an arbitrary number of arguments, consider adding a count argument at n-1 and use that to further offset your program.
+To access stack arguments, you must offset onto the stack behind the current Base Stack Pointer or use a register to pass arguments. You should know how many arguments your function takes and therefore know exactly how far to offset. If you need to pass an arbitrary number of arguments, consider adding a count argument at _n-1_ and use that to further offset your program.
 ## Memory Access
 Memory access is done by placing brackets around a *\<DST\>* or *\<SRC\>* value:
 
@@ -141,7 +141,7 @@ _________________________________
 
 The first memory position in the stack is the number of arguments passed to the program.
 
-The next $n$ memory positions in the stack point to strings somewhere in the stack.
+The next _n_ memory positions in the stack point to strings somewhere in the stack.
 
 The strings in the stack are cstrings: an array of ascii character values followed by a null byte.
 
