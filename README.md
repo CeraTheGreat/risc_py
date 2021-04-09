@@ -80,7 +80,6 @@ Stack frames are constructed in the following way:
   :                          :
   .                          .
 ```
-To acces stack arguments you must offset **BSP** by 3 and begin there. 
 
 The **CLL** and **RET** instructions automatically construct and deconstruct the stack frame.
 
