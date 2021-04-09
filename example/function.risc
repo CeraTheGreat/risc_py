@@ -1,31 +1,42 @@
 'initialization
-		MOV [0] BAK		'Backup the number of arguments
-		PSH 1			'Put first pointer on stack
-ILOP:	MOV [STP] ACC	'Get current pointer from stack
-		POP				'Clear stack
-		PSH [ACC]		'Push the value being pointed to by pointer
-		ADD 1			'Increment pointer
-		PSH ACC			'Push new pointer
-		MOV BAK ACC		'Count down number of arguments
-		SUB 1			'
-		MOV ACC BAK		'Backup count
-		JNZ ILOP		'If more arguments, jump back into loop
-		POP				'Else clear stack of pointer
-		MOV [0] ACC		'Move argument count into ACC
-		ADD 1			'Increment
-		
-INIT:	PSH [0]			'Push the number of arguments onto the stack last
-		CLL MAIN 		'Call main with argument count and argument pointers
-		HLT				'Halt if main returns	
+
+		MOV [0] ACC		'Get argc
+		PSH [0]			'Pass argc to main
+		JEZ NULLP		'If zero args, pass null pointer
+		PSH 1			'Else push *argv
+		JMP INIT		
+NULLP:	PSH 0			
+INIT:	CLL MAIN		'Start main function
+		HLT				'Stop after main returns
+
+'OLD INIT
+'		MOV [0] BAK		'Backup the number of arguments
+'		PSH 1			'Put first pointer on stack
+'ILOP:	MOV [STP] ACC	'Get current pointer from stack
+'		POP				'Clear stack
+'		PSH [ACC]		'Push the value being pointed to by pointer
+'		ADD 1			'Increment pointer
+'		PSH ACC			'Push new pointer
+'		MOV BAK ACC		'Count down number of arguments
+'		SUB 1			'
+'		MOV ACC BAK		'Backup count
+'		JNZ ILOP		'If more arguments, jump back into loop
+'		POP				'Else clear stack of pointer
+'		MOV [0] ACC		'Move argument count into ACC
+'		ADD 1			'Increment
+'		
+'INIT:	PSH [0]			'Push the number of arguments onto the stack last
+'		CLL MAIN 		'Call main with argument count and argument pointers
+'		HLT				'Halt if main returns	
 		
 '------------------------------------------------------------------------------'
-'void main(int argc, int* argv)
+'void main(int argc, char** argv)
 MAIN:	MOV BSP ACC		'Get base pointer
-		SUB 1			'Offset by 1 to get to argc
+		SUB 2			'Offset by 2 to get argc
 		PSH [ACC]		'Push argc onto stack
 		MOV [ACC] BAK	'Copy argc to bakup
-		SUB BAK			'Get *argv
-		PSH ACC			'Push *argv onto the stack
+		ADD 1			'Offset by 1 to get *argv
+		PSH [ACC]		'Push *argv onto stack
 
 MLOP:	MOV BAK ACC		'Move argc from bakup into accumulator
 		JEZ	EMAIN		'If out of arguments, jump to end
@@ -41,6 +52,28 @@ MLOP:	MOV BAK ACC		'Move argc from bakup into accumulator
 		JMP MLOP		'Restart loop
 
 EMAIN:	RET				'Return from main
+
+'MAIN:	MOV BSP ACC		'Get base pointer
+'		SUB 1			'Offset by 1 to get to argc
+'		PSH [ACC]		'Push argc onto stack
+'		MOV [ACC] BAK	'Copy argc to bakup
+'		SUB BAK			'Get *argv
+'		PSH ACC			'Push *argv onto the stack
+'
+'MLOP:	MOV BAK ACC		'Move argc from bakup into accumulator
+'		JEZ	EMAIN		'If out of arguments, jump to end
+'		SUB 1			'Decrement
+'		MOV ACC BAK		'Save back decremented count
+'		PSH [[STP]]		'Else push argv[0] onto stack
+'		CLL PRINT		'Print this string
+'		POP				'Remove pointer from stack
+'		MOV [STP] ACC	'Move *argv into acc
+'		ADD 1			'Increment to get *(argv + i) 
+'		POP				'Remove *argv from stack
+'		PSH ACC			'Replace with incremented value
+'		JMP MLOP		'Restart loop
+'
+'EMAIN:	RET				'Return from main
 		
 '------------------------------------------------------------------------------'
 'void print(char* string)
