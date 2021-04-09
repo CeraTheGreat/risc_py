@@ -12,7 +12,7 @@ INIT:   CLL MAIN        'Start main function
 '------------------------------------------------------------------------------'
 'void main(int argc, char **argv)
 MAIN:   MOV BSP ACC     'Get base pointer
-        SUB2            'Offset by 2 to get argc
+        SUB 2           'Offset by 2 to get argc
         PSH [ACC]       'Push argc onto stack
         MOV [ACC] BAK   'Copy argc to bakup
         ADD 1           'Offset by 1 to get *argv
