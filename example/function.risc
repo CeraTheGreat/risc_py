@@ -9,28 +9,8 @@ NULLP:	PSH 0
 INIT:	CLL MAIN		'Start main function
 		HLT				'Stop after main returns
 
-'OLD INIT
-'		MOV [0] BAK		'Backup the number of arguments
-'		PSH 1			'Put first pointer on stack
-'ILOP:	MOV [STP] ACC	'Get current pointer from stack
-'		POP				'Clear stack
-'		PSH [ACC]		'Push the value being pointed to by pointer
-'		ADD 1			'Increment pointer
-'		PSH ACC			'Push new pointer
-'		MOV BAK ACC		'Count down number of arguments
-'		SUB 1			'
-'		MOV ACC BAK		'Backup count
-'		JNZ ILOP		'If more arguments, jump back into loop
-'		POP				'Else clear stack of pointer
-'		MOV [0] ACC		'Move argument count into ACC
-'		ADD 1			'Increment
-'		
-'INIT:	PSH [0]			'Push the number of arguments onto the stack last
-'		CLL MAIN 		'Call main with argument count and argument pointers
-'		HLT				'Halt if main returns	
-		
 '------------------------------------------------------------------------------'
-'void main(int argc, char** argv)
+'void main(int argc, char **argv)
 MAIN:	MOV BSP ACC		'Get base pointer
 		SUB 2			'Offset by 2 to get argc
 		PSH [ACC]		'Push argc onto stack
@@ -42,7 +22,7 @@ MLOP:	MOV BAK ACC		'Move argc from bakup into accumulator
 		JEZ	EMAIN		'If out of arguments, jump to end
 		SUB 1			'Decrement
 		MOV ACC BAK		'Save back decremented count
-		PSH [[STP]]		'Else push argv[0] onto stack
+		PSH [[STP]]		'Else push argv[i] onto stack
 		CLL PRINT		'Print this string
 		POP				'Remove pointer from stack
 		MOV [STP] ACC	'Move *argv into acc
@@ -52,44 +32,22 @@ MLOP:	MOV BAK ACC		'Move argc from bakup into accumulator
 		JMP MLOP		'Restart loop
 
 EMAIN:	RET				'Return from main
-
-'MAIN:	MOV BSP ACC		'Get base pointer
-'		SUB 1			'Offset by 1 to get to argc
-'		PSH [ACC]		'Push argc onto stack
-'		MOV [ACC] BAK	'Copy argc to bakup
-'		SUB BAK			'Get *argv
-'		PSH ACC			'Push *argv onto the stack
-'
-'MLOP:	MOV BAK ACC		'Move argc from bakup into accumulator
-'		JEZ	EMAIN		'If out of arguments, jump to end
-'		SUB 1			'Decrement
-'		MOV ACC BAK		'Save back decremented count
-'		PSH [[STP]]		'Else push argv[0] onto stack
-'		CLL PRINT		'Print this string
-'		POP				'Remove pointer from stack
-'		MOV [STP] ACC	'Move *argv into acc
-'		ADD 1			'Increment to get *(argv + i) 
-'		POP				'Remove *argv from stack
-'		PSH ACC			'Replace with incremented value
-'		JMP MLOP		'Restart loop
-'
-'EMAIN:	RET				'Return from main
 		
 '------------------------------------------------------------------------------'
-'void print(char* string)
+'void print(char *string)
 PRINT:	PSH ACC			'SAVE ACC to stack for register integrity
 		PSH BAK			'Save BAK to stack for register integrity
 		MOV BSP ACC		'move base pointer to accumulator
 		SUB 1			'Sub 1 to offset into parameter space
 		MOV [ACC] BAK	'Move memory pointed at by variable into BAK
-LOOP:	MOV [BAK] ACC	'Move the value at the pointer into ACC to compare
-		JEZ END			'If current char is NULL, string is done
+PLOP:	MOV [BAK] ACC	'Move the value at the pointer into ACC to compare
+		JEZ PEND		'If current char is NULL, string is done
 		CHP ACC			'Else print current char
 		MOV BAK ACC		'Move BAK to ACC to increment the pointer
 		ADD 1
 		MOV ACC BAK		'Save incremented pointer
-		JMP LOOP		'Go to next char
-END:	CHP 12			'Carriage Return
+		JMP PLOP		'Go to next char
+PEND:	CHP 12			'Carriage Return
 		CHP 13			'Line feed
 		MOV [STP] BAK	'Return in the same state we started in
 		POP
